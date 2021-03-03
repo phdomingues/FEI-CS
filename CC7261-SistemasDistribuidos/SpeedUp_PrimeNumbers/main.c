@@ -230,7 +230,7 @@ int main(int argc, char** argv){
 
     // Result table 2 - Compair algorithms
     printf("|------------|-----------------------|-----------------------|\n");
-    printf("|            |         Media         |        SpeedUp        |\n");
+    printf("|            |       Media [ms]      |        SpeedUp        |\n");
     printf("|   Valor    |-----------|-----------|-----------|-----------|\n");
     printf("|            |    sqrt   |   6k+-1   |    sqrt   |   6k+-1   |\n");
     printf("|------------|-----------|-----------|-----------|-----------|\n");
