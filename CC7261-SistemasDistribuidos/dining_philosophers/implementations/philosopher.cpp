@@ -10,9 +10,9 @@ unsigned int Philosopher::TIME2THINK = 0;
 Philosopher::Philosopher(int _chair, Table* _table) 
     : chair(_chair), table(_table)
 {
-    this->forks = 0;
+    this->left_fork = false;
+    this->right_fork = false;
     this->current_state = Philosopher::hungry;
-    std::cout << "Hello! I am philosopher #" << this->chair << " - " << this->table->n_chairs << std::endl;
 }
 
 void Philosopher::Iterate()
@@ -32,9 +32,10 @@ void Philosopher::Iterate()
 
         case Philosopher::hungry :
             this->GetFork();
-            if (this->forks == 2)
+            if (this->CountForks() == 2)
             {
                 this->ChangeState(Philosopher::eating);
+                return;
             }
             break;
         default:
@@ -50,13 +51,41 @@ void Philosopher::ChangeState(Philosopher::state new_state)
 void Philosopher::GetFork()
 {
     // Verifica e pega na mesa os garfos disponiveis
-    this->forks += this->table->GetFork(this->chair);
+    switch (this->table->GetFork(this->chair))
+    {
+    case fork_type::LEFT_FORK :
+        this->left_fork = true;
+        break;
+    case fork_type::RIGHT_FORK :
+        this->right_fork = true;
+        break;
+    case fork_type::NO_FORK :
+        break;
+    default:
+        break;
+    }
 }
 
 void Philosopher::ReturnForks()
 {
-   this->table->ReturnForks(this->chair, this->forks);
-   this->forks = 0;
+   this->table->ReturnForks(this->chair);
+   this->left_fork = false;
+   this->right_fork = false;
+}
+
+int Philosopher::CountForks()
+{
+    return (int)(this->right_fork + this->left_fork);
+}
+
+bool Philosopher::HoldingLeftFork()
+{
+    return this->left_fork;
+}
+
+bool Philosopher::HoldingRightFork()
+{
+    return this->right_fork;
 }
 
 std::string Philosopher::GetState()
@@ -64,13 +93,13 @@ std::string Philosopher::GetState()
     switch (this->current_state)
     {
         case Philosopher::eating :
-            return "Eating";
+            return "Eating  ";
         case Philosopher::thinking :
             return "Thinking";
         case Philosopher::hungry :
-            return "Hungry";
+            return "Hungry  ";
         case Philosopher::dead :
-            return "Dead";
+            return "Dead    ";
     }
 
     return "ERROR";

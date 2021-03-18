@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-    Table t = Table(5, 5, 3);
+    Table t = Table(5, 100, 1, 1000);
 
     std::cout << "Starting simulation" << std::endl;
     t.PlaySimulation();

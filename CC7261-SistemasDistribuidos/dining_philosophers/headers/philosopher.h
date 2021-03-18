@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string>
 #include "table.h"
+#include "definitions.h"
 
 class Table;
 
@@ -26,7 +27,8 @@ private:
     // Definicao do filosofo no momento atual
     Table* table;               // Mesa que o filosofo esta sentado
     int chair;                  // Cadeira que ele esta sentado
-    uint8_t forks;              // Quantos garfos o filosofo esta segurando no momento
+    bool left_fork;             // Segurando garfo esquerdo
+    bool right_fork;            // Segurando o garfo direito
     state current_state;        // Qual o estado deste filosofo
 
 /* CONSTRUTORES */
@@ -35,20 +37,14 @@ public:
 
 /* METODOS */
 public:
-    /* 
-        Descricao:
-            Realiza 1 ciclo de vida do filosofo
-        
-        Entradas:
-            Nenhuma
-        Saidas:
-            Quantidade de garfos devolvidos para a mesa
-    */
     void Iterate();
-
     std::string GetState();
+    int CountForks();
     void ChangeState(state new_state);
     void GetFork();
     void ReturnForks();
     static void Simulate(Philosopher* philosopher);
+    bool HoldingLeftFork();
+    bool HoldingRightFork();
+
 };
