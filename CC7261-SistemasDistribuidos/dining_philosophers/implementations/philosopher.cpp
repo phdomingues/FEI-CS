@@ -12,40 +12,40 @@ Philosopher::Philosopher(int _chair, Table* _table)
 {
     this->left_fork = false;
     this->right_fork = false;
-    this->current_state = Philosopher::hungry;
+    this->current_state = philosopher_state::hungry;
 }
 
 void Philosopher::Iterate()
 {
     switch (this->current_state)
     {
-        case Philosopher::eating :
+        case philosopher_state::eating :
             Sleep(Philosopher::TIME2EAT);
             this->ReturnFork(fork_type::LEFT_FORK);
             this->ReturnFork(fork_type::RIGHT_FORK);
-            this->ChangeState(Philosopher::thinking);
+            if (this->CountForks() == 0)
+                this->ChangeState(philosopher_state::thinking);
             break;
 
-        case Philosopher::thinking :
+        case philosopher_state::thinking :
             Sleep(Philosopher::TIME2THINK);
-            this->ChangeState(Philosopher::hungry);
+            this->ChangeState(philosopher_state::hungry);
             break;
 
-        case Philosopher::hungry :
+        case philosopher_state::hungry :
             this->GetFork();
             if (this->CountForks() == 2)
             {
-                this->ChangeState(Philosopher::eating);
+                this->ChangeState(philosopher_state::eating);
                 return;
             }
             break;
         default:
-            
             break;
     }
 }
 
-void Philosopher::ChangeState(Philosopher::state new_state)
+void Philosopher::ChangeState(philosopher_state new_state)
 {
     this->current_state = new_state;
 }
@@ -70,9 +70,9 @@ void Philosopher::GetFork()
 
 void Philosopher::ReturnFork(fork_type fork)
 {
-   this->table->ReturnFork(this->chair, fork);
-   this->left_fork = fork == fork_type::LEFT_FORK ? false : this->left_fork;
-   this->right_fork = fork == fork_type::RIGHT_FORK ? false : this->right_fork;
+    this->table->ReturnFork(this->chair, fork);
+    this->left_fork = fork == fork_type::LEFT_FORK ? false : this->left_fork;
+    this->right_fork = fork == fork_type::RIGHT_FORK ? false : this->right_fork;
 }
 
 int Philosopher::CountForks()
@@ -90,17 +90,22 @@ bool Philosopher::HoldingRightFork()
     return this->right_fork;
 }
 
-std::string Philosopher::GetState()
+philosopher_state Philosopher::GetState() 
+{
+    return this->current_state;
+}
+
+std::string Philosopher::GetStateString()
 {
     switch (this->current_state)
     {
-        case Philosopher::eating :
+        case philosopher_state::eating :
             return "Eating  ";
-        case Philosopher::thinking :
+        case philosopher_state::thinking :
             return "Thinking";
-        case Philosopher::hungry :
+        case philosopher_state::hungry :
             return "Hungry  ";
-        case Philosopher::dead :
+        case philosopher_state::dead :
             return "Dead    ";
     }
 
@@ -109,7 +114,7 @@ std::string Philosopher::GetState()
 
 void Philosopher::Simulate(Philosopher* philosopher)
 {
-    while (philosopher->current_state != Philosopher::dead)
+    while (philosopher->current_state != philosopher_state::dead)
     {
         philosopher->Iterate();
     }
