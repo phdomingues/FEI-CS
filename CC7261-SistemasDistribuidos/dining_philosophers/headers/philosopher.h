@@ -42,7 +42,7 @@ public:
     int CountForks();
     void ChangeState(state new_state);
     void GetFork();
-    void ReturnForks();
+    void ReturnFork(fork_type fork);
     static void Simulate(Philosopher* philosopher);
     bool HoldingLeftFork();
     bool HoldingRightFork();

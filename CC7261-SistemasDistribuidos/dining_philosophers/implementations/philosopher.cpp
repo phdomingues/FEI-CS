@@ -21,7 +21,8 @@ void Philosopher::Iterate()
     {
         case Philosopher::eating :
             Sleep(Philosopher::TIME2EAT);
-            this->ReturnForks();
+            this->ReturnFork(fork_type::LEFT_FORK);
+            this->ReturnFork(fork_type::RIGHT_FORK);
             this->ChangeState(Philosopher::thinking);
             break;
 
@@ -39,6 +40,7 @@ void Philosopher::Iterate()
             }
             break;
         default:
+            
             break;
     }
 }
@@ -66,11 +68,11 @@ void Philosopher::GetFork()
     }
 }
 
-void Philosopher::ReturnForks()
+void Philosopher::ReturnFork(fork_type fork)
 {
-   this->table->ReturnForks(this->chair);
-   this->left_fork = false;
-   this->right_fork = false;
+   this->table->ReturnFork(this->chair, fork);
+   this->left_fork = fork == fork_type::LEFT_FORK ? false : this->left_fork;
+   this->right_fork = fork == fork_type::RIGHT_FORK ? false : this->right_fork;
 }
 
 int Philosopher::CountForks()

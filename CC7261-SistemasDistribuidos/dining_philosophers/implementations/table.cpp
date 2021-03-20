@@ -42,13 +42,13 @@ fork_type Table::GetFork(int chair)
     return fork_type::NO_FORK;
 }
 
-void Table::ReturnForks(int chair)
+void Table::ReturnFork(int chair, fork_type fork)
 {
     int left = chair == 0 ? this->n_chairs-1 : chair-1;
     int right = chair;
 
-    this->forks[left] = true;
-    this->forks[right] = true;
+    this->forks[left] = fork == fork_type::LEFT_FORK ? true : this->forks[left];
+    this->forks[right] = fork == fork_type::RIGHT_FORK ? true : this->forks[right];
 }
 
 void Table::Cicle(Table* table)

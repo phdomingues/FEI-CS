@@ -25,6 +25,6 @@ public:
 public:
     void PlaySimulation();
     fork_type GetFork(int chair);
-    void ReturnForks(int chair);
+    void ReturnFork(int chair, fork_type fork);
     static void Cicle(Table* table);
 };
