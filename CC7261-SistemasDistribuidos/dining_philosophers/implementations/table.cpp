@@ -1,7 +1,8 @@
+#include <mutex>
+#include <chrono>
 #include "../headers/table.h"
 #include "../headers/philosopher.h"
 #include "../headers/table_utils.h"
-#include <chrono>
 
 Table::Table(int chairs, unsigned int time2eat, unsigned int time2think, unsigned int log_interval, log_level log_type)
     : n_chairs(chairs), log_interval(log_interval), log_type(log_type)
@@ -24,7 +25,16 @@ Table::Table(int chairs, unsigned int time2eat, unsigned int time2think, unsigne
     // Define os tempos padrao
     this->philosophers[0].TIME2EAT = time2eat;
     this->philosophers[0].TIME2THINK = time2think;
+}
 
+Table::Table(const Table &t1)
+{
+    this->forks = t1.forks;
+    this->last_state = t1.last_state;
+    this->philosophers = t1.philosophers;
+    this->n_chairs = t1.n_chairs;
+    this->log_interval = t1.log_interval;
+    this->log_type = t1.log_type;
 }
 
 fork_type Table::GetFork(int chair)
@@ -33,6 +43,7 @@ fork_type Table::GetFork(int chair)
     int left = chair == 0 ? this->n_chairs-1 : chair-1;
     int right = chair;
 
+    std::lock_guard<std::mutex> lock (mtx);
     if (this->forks[left] == true)
     {
         this->forks[left] = false;
@@ -50,7 +61,8 @@ void Table::ReturnFork(int chair, fork_type fork)
 {
     int left = chair == 0 ? this->n_chairs-1 : chair-1;
     int right = chair;
-
+    
+    std::lock_guard<std::mutex> lock (this->mtx);
     this->forks[left] = fork == fork_type::LEFT_FORK ? true : this->forks[left];
     this->forks[right] = fork == fork_type::RIGHT_FORK ? true : this->forks[right];
 }

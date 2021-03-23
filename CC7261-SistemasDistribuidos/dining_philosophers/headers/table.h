@@ -3,6 +3,7 @@
 #include <thread>
 #include <windows.h>
 #include <vector>
+#include <mutex>
 #include "philosopher.h"
 
 class Table;
@@ -14,6 +15,7 @@ public:
     int n_chairs;               // Numero total de cadeiras na mesa
     unsigned int log_interval;  // Intervalo entre logs em ms
 private:
+    std::mutex mtx;
     bool* forks;                // Array com a disponibilidade dos garfos na mesa
     std::vector<Philosopher> philosophers;  // Array com os filosofos sentados a mesa
     log_level log_type; // Tipo de log inicializado
@@ -21,6 +23,7 @@ private:
 
 /* Construtores */
 public:
+    // default
     Table( 
         int chairs, 
         unsigned int time2eat, 
@@ -28,6 +31,9 @@ public:
         unsigned int log_interval=1000, 
         log_level log_type=log_level::SIMPLE
     );
+    // Construtor de copia (obrigatorio, pois caso nao tenha o compilador vai tentar criar um construtor de copia padrao, 
+    // mas como mutex nao eh copiavel gera erro de compilacao)
+    Table(const Table &t1);
 
 /* Metodos */
 public:
