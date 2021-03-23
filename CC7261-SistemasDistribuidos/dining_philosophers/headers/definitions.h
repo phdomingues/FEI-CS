@@ -11,7 +11,8 @@ enum philosopher_state
 enum fork_type {
     LEFT_FORK,
     RIGHT_FORK,
-    NO_FORK
+    NO_FORK,
+    CENTER_FORK // Garfo compartilhado, disponivel apenas quando especificado
 };
 
 enum log_level {

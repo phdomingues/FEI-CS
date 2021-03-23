@@ -29,6 +29,7 @@ Table::Table(int chairs, unsigned int time2eat, unsigned int time2think, unsigne
 
 fork_type Table::GetFork(int chair)
 {
+    // garfo a direita = proprio indice, garfo a esquerda = indice - 1 (se -1 for invalido da a volta no array - lista circular)
     int left = chair == 0 ? this->n_chairs-1 : chair-1;
     int right = chair;
 
@@ -70,6 +71,7 @@ bool Table::state_changed()
 
 void Table::simple_log(Table* table, std::chrono::high_resolution_clock::time_point start)
 {
+    // Imprime apenas se for relevante (se mudou o estado de alguem)
     if (this->state_changed())
     {
         for (int i = 0; i < table->n_chairs; i++)
@@ -80,11 +82,14 @@ void Table::simple_log(Table* table, std::chrono::high_resolution_clock::time_po
         std::cout << "Elapsed time: " << elapsed.count() << " s\n";
     }
 }
+
 void Table::illustrated_log(Table* table, std::chrono::high_resolution_clock::time_point start)
 {
+    // Lambdas de impressao dos garfos
     auto fork2char = [](bool fork) { return (fork ? "w " : "  "); };
     auto fork2char2 = [](bool fork) { return (fork ? "| " : "_ "); };
-    auto countchairs = [table]() 
+    // Lambda de contagem de garfos disponiveis
+    auto countforks = [table]() 
     {
         int c = 0;
         for (int i = 0; i < table->n_chairs; i++)
@@ -94,6 +99,7 @@ void Table::illustrated_log(Table* table, std::chrono::high_resolution_clock::ti
 
     std::cout << "------------------------------------------------------------\n\n";
 
+    // Imprime informacoes dos filosofos e garfos na mao deles
     for (int i = 0; i < table->n_chairs; i++)
     {
         std::cout   << "                 " 
@@ -102,6 +108,7 @@ void Table::illustrated_log(Table* table, std::chrono::high_resolution_clock::ti
                     << table->philosophers[i].GetStateString() << std::endl << std::endl;
     }
 
+    // Imprime informacoes sobre a mesa
     std::cout << std::endl << "Table:\n======\n\n";
     for (int i = 0; i < table->n_chairs; i++)
     {
@@ -113,9 +120,10 @@ void Table::illustrated_log(Table* table, std::chrono::high_resolution_clock::ti
     }
     std::cout << std::endl << std::endl;
 
+    // Imprime informacoes de simulacao + garfos disponiveis (facilita a visualizacao)
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
     std::cout << "Elapsed time: " << elapsed.count() << " s\n";
-    std::cout << "Forks at table: " << countchairs() << std::endl;
+    std::cout << "Forks at table: " << countforks() << std::endl;
     Sleep(table->log_interval);
 }
 
@@ -151,6 +159,7 @@ void Table::Cicle(Table* table)
 
     std::cout << "\n****** DEADLOCK ******\n";
 
+    // Mata todos os processos (filosofos) para finalizar a execucao
     for (int i = 0; i < table->n_chairs; i++)
     {
         table->philosophers[i].ChangeState(philosopher_state::dead);
@@ -159,10 +168,13 @@ void Table::Cicle(Table* table)
 
 void Table::PlaySimulation()
 {
+    // vetor de armazenamento das threads
     std::thread* philosopher_threads = new std::thread[this->n_chairs];
 
+    // inicializacao da thread da mesa
     std::thread table_log = std::thread(Table::Cicle, this);
 
+    // inicializacao das threads dos filosofos
     for (int i = 0; i < this->n_chairs; i++)
     {
         philosopher_threads[i] = std::thread(Philosopher::Simulate, &(this->philosophers[i]));

@@ -11,13 +11,13 @@ class Table
 {
 /* ATRIBUTOS */
 public:
-    int n_chairs;               // Numero de cadeiras na mesa
+    int n_chairs;               // Numero total de cadeiras na mesa
     unsigned int log_interval;  // Intervalo entre logs em ms
 private:
-    bool* forks;                // Array com os garfos
+    bool* forks;                // Array com a disponibilidade dos garfos na mesa
     std::vector<Philosopher> philosophers;  // Array com os filosofos sentados a mesa
-    log_level log_type;
-    philosopher_state* last_state;
+    log_level log_type; // Tipo de log inicializado
+    philosopher_state* last_state; // Estado dos filosofos no ultimo ciclo
 
 /* Construtores */
 public:
@@ -31,13 +31,16 @@ public:
 
 /* Metodos */
 public:
-    void PlaySimulation();
-    fork_type GetFork(int chair);
-    void ReturnFork(int chair, fork_type fork);
-    static void Cicle(Table* table);
+// Simulacao
+    void PlaySimulation(); // Cria filosofos, inicia threads e simula ate um deadlock ocorrer
+    static void Cicle(Table* table); // Realiza um ciclo da simulacao, realizando o log escolhido
+
+// Gerenciamento de garfos
+    fork_type GetFork(int chair); // Pega um garfo da mesa
+    void ReturnFork(int chair, fork_type fork); // Devolve um garfo para a mesa
 
 private:
-    void simple_log(Table* table, std::chrono::high_resolution_clock::time_point start);
-    void illustrated_log(Table* table, std::chrono::high_resolution_clock::time_point start);
-    bool state_changed();
+    void simple_log(Table* table, std::chrono::high_resolution_clock::time_point start); // Metodo que realiza uma passagem do log em modo simples
+    void illustrated_log(Table* table, std::chrono::high_resolution_clock::time_point start); // Metodo que realiza uma passagem do log em modo ilustrado
+    bool state_changed(); // Verifica se algum filosofo mudou seu estado desde o ultimo ciclo
 };

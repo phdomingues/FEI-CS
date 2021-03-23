@@ -1,7 +1,9 @@
 #include <string>
 #include <algorithm>
 
-std::string fixedLength(int value, int digits = 2) {
+// Funcao para converter um valor inteiro em uma string de n digitos (ex: 3 -> "003")
+std::string fixedLength(int value, int digits = 2) 
+{
     unsigned int uvalue = value;
     if (value < 0) {
         uvalue = -uvalue;

@@ -15,6 +15,14 @@ Philosopher::Philosopher(int _chair, Table* _table)
     this->current_state = philosopher_state::hungry;
 }
 
+void Philosopher::Simulate(Philosopher* philosopher)
+{
+    while (philosopher->current_state != philosopher_state::dead)
+    {
+        philosopher->Iterate();
+    }
+}
+
 void Philosopher::Iterate()
 {
     switch (this->current_state)
@@ -110,12 +118,4 @@ std::string Philosopher::GetStateString()
     }
 
     return "ERROR";
-}
-
-void Philosopher::Simulate(Philosopher* philosopher)
-{
-    while (philosopher->current_state != philosopher_state::dead)
-    {
-        philosopher->Iterate();
-    }
 }
