@@ -10,8 +10,8 @@ unsigned int Philosopher::TIME2THINK = 0;
 Philosopher::Philosopher(int _chair, Table* _table) 
     : chair(_chair), table(_table)
 {
-    this->left_fork = false;
-    this->right_fork = false;
+    this->forks[0] = fork_type::NO_FORK;
+    this->forks[1] = fork_type::NO_FORK;
     this->current_state = philosopher_state::hungry;
 }
 
@@ -29,8 +29,7 @@ void Philosopher::Iterate()
     {
         case philosopher_state::eating :
             Sleep(Philosopher::TIME2EAT);
-            this->ReturnFork(fork_type::LEFT_FORK);
-            this->ReturnFork(fork_type::RIGHT_FORK);
+            this->ReturnForks();
             if (this->CountForks() == 0)
                 this->ChangeState(philosopher_state::thinking);
             break;
@@ -60,42 +59,26 @@ void Philosopher::ChangeState(philosopher_state new_state)
 
 void Philosopher::GetFork()
 {
-    // Verifica e pega na mesa os garfos disponiveis
-    switch (this->table->GetFork(this->chair))
-    {
-    case fork_type::LEFT_FORK :
-        this->left_fork = true;
-        break;
-    case fork_type::RIGHT_FORK :
-        this->right_fork = true;
-        break;
-    case fork_type::NO_FORK :
-        break;
-    default:
-        break;
-    }
+    fork_type table_fork = this->table->GetFork(this->chair);
+    if (this->forks[0] == fork_type::NO_FORK)
+        this->forks[0] = table_fork;
+    else if (this->forks[1] == fork_type::NO_FORK)
+        this->forks[1] = table_fork;
 }
 
-void Philosopher::ReturnFork(fork_type fork)
+void Philosopher::ReturnForks()
 {
-    this->table->ReturnFork(this->chair, fork);
-    this->left_fork = fork == fork_type::LEFT_FORK ? false : this->left_fork;
-    this->right_fork = fork == fork_type::RIGHT_FORK ? false : this->right_fork;
+    for (int i = 0; i < 2; i++)
+    {
+        this->table->ReturnFork(this->chair, this->forks[i]);
+        this->forks[i] = fork_type::NO_FORK;
+    }
 }
 
 int Philosopher::CountForks()
 {
-    return (int)(this->right_fork + this->left_fork);
-}
-
-bool Philosopher::HoldingLeftFork()
-{
-    return this->left_fork;
-}
-
-bool Philosopher::HoldingRightFork()
-{
-    return this->right_fork;
+    int total = (int)(this->forks[0] != fork_type::NO_FORK) + (int)(this->forks[1] != fork_type::NO_FORK);
+    return total;
 }
 
 philosopher_state Philosopher::GetState() 

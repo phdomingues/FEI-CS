@@ -20,8 +20,7 @@ private:
     friend class Table;                     // Garante a mesa acesso aos metodos privados do filosofo
     Table* table;                           // Mesa que o filosofo esta sentado
     int chair;                              // Cadeira que ele esta sentado
-    bool left_fork;                         // Segurando garfo esquerdo
-    bool right_fork;                        // Segurando o garfo direito
+    fork_type forks[2];                     // Garfos que o filosofo está segurando
     philosopher_state current_state;        // Qual o estado deste filosofo
 
 /* CONSTRUTORES */
@@ -37,11 +36,9 @@ public:
 // Operacoes com o garfo
 public:
     int CountForks(); // Retorna o numero de garfos que o filosofo esta segurando
-    bool HoldingLeftFork(); // Verifica se tem um garfo na mao esquerda
-    bool HoldingRightFork(); // Verifica se tem um garfo na mao direita
 private:
     void GetFork(); // Faz com que o filosofo tente pegar um garfo na mesa
-    void ReturnFork(fork_type fork); // Devolve o garfo definido para a mesa
+    void ReturnForks(); // Retorna os garfos para a mesa (1 por vez)
 
 // Funcoes do estado atual do filosofo
 public:

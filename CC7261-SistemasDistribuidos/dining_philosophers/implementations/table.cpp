@@ -4,8 +4,8 @@
 #include "../headers/philosopher.h"
 #include "../headers/table_utils.h"
 
-Table::Table(int chairs, unsigned int time2eat, unsigned int time2think, unsigned int log_interval, log_level log_type)
-    : n_chairs(chairs), log_interval(log_interval), log_type(log_type)
+Table::Table(int chairs, unsigned int time2eat, unsigned int time2think, unsigned int log_interval, log_level log_type, bool central_fork)
+    : n_chairs(chairs), log_interval(log_interval), log_type(log_type), center_fork(central_fork), center_fork_enabled(central_fork)
 {
     // Prepara o vetor de garfos (1 garfo para cada filosofo)
     this->forks = new bool[chairs];
@@ -25,6 +25,7 @@ Table::Table(int chairs, unsigned int time2eat, unsigned int time2think, unsigne
     // Define os tempos padrao
     this->philosophers[0].TIME2EAT = time2eat;
     this->philosophers[0].TIME2THINK = time2think;
+
 }
 
 Table::Table(const Table &t1)
@@ -54,6 +55,11 @@ fork_type Table::GetFork(int chair)
         this->forks[right] = false;
         return fork_type::RIGHT_FORK;
     }
+    if (this->center_fork == true)
+    {
+        this->center_fork = false;
+        return fork_type::CENTER_FORK;
+    }
     return fork_type::NO_FORK;
 }
 
@@ -65,6 +71,7 @@ void Table::ReturnFork(int chair, fork_type fork)
     std::lock_guard<std::mutex> lock (this->mtx);
     this->forks[left] = fork == fork_type::LEFT_FORK ? true : this->forks[left];
     this->forks[right] = fork == fork_type::RIGHT_FORK ? true : this->forks[right];
+    if (fork == fork_type::CENTER_FORK) { this->center_fork = true; }
 }
 
 bool Table::state_changed()
@@ -114,9 +121,10 @@ void Table::illustrated_log(Table* table, std::chrono::high_resolution_clock::ti
     // Imprime informacoes dos filosofos e garfos na mao deles
     for (int i = 0; i < table->n_chairs; i++)
     {
+        int nforks = table->philosophers[i].CountForks();
         std::cout   << "                 " 
-                    << fork2char(table->philosophers[i].HoldingLeftFork()) << fork2char(table->philosophers[i].HoldingRightFork()) << std::endl
-                    << "Philosopher #" << fixedLength(i,2) << ": " << fork2char2(table->philosophers[i].HoldingLeftFork()) << fork2char2(table->philosophers[i].HoldingRightFork()) 
+                    << fork2char(nforks>0) << fork2char(nforks>1) << std::endl
+                    << "Philosopher #" << fixedLength(i,2) << ": " << fork2char2(nforks>0) << fork2char2(nforks>1) 
                     << table->philosophers[i].GetStateString() << std::endl << std::endl;
     }
 
@@ -131,11 +139,16 @@ void Table::illustrated_log(Table* table, std::chrono::high_resolution_clock::ti
         std::cout << "      " << fork2char2(table->forks[i]);
     }
     std::cout << std::endl << std::endl;
+    if (table->center_fork_enabled)
+    {
+        std::cout << "Center Fork: " << fork2char(table->center_fork) << std::endl;
+        std::cout << "             " << fork2char2(table->center_fork) << std::endl << std::endl;
+    }
 
     // Imprime informacoes de simulacao + garfos disponiveis (facilita a visualizacao)
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+    std::cout << "Forks at table: " << countforks() + table->center_fork << std::endl;
     std::cout << "Elapsed time: " << elapsed.count() << " s\n";
-    std::cout << "Forks at table: " << countforks() << std::endl;
     Sleep(table->log_interval);
 }
 

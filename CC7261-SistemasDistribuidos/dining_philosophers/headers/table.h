@@ -17,6 +17,8 @@ public:
 private:
     std::mutex mtx;
     bool* forks;                // Array com a disponibilidade dos garfos na mesa
+    bool center_fork;
+    bool center_fork_enabled;
     std::vector<Philosopher> philosophers;  // Array com os filosofos sentados a mesa
     log_level log_type; // Tipo de log inicializado
     philosopher_state* last_state; // Estado dos filosofos no ultimo ciclo
@@ -29,7 +31,8 @@ public:
         unsigned int time2eat, 
         unsigned int time2think, 
         unsigned int log_interval=1000, 
-        log_level log_type=log_level::SIMPLE
+        log_level log_type=log_level::SIMPLE,
+        bool central_fork=true
     );
     // Construtor de copia (obrigatorio, pois caso nao tenha o compilador vai tentar criar um construtor de copia padrao, 
     // mas como mutex nao eh copiavel gera erro de compilacao)
