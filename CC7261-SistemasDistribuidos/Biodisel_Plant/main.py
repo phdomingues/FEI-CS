@@ -1,6 +1,18 @@
 from BaseClasses import *
+import threading
 import signal
 import math
+import time
+import os
+
+def logging(stop_signal, *tanks):
+    while not stop_signal:
+        print("{:^30} | {:^10} | {:^10} | Products".format("Tanque", "Capacidade", "Level"))
+        print("-"*31 + '+' + "-"*12 + '+' + '-'*12 + '+' + '-'*30)
+        for tank in tanks:
+            print(tank)
+        time.sleep(0.1)
+        os.system('cls' if os.name == 'nt' else 'clear')
 
 threads = []
 
@@ -30,12 +42,14 @@ input_oil.connect_pipe(pipe_oil_tank)
 input_NaOH.connect_pipe(pipe_naoh_tank)
 input_EtOH.connect_pipe(pipe_etoh_tank)
 
+# Logging tool
+log_thread = threading.Thread(target=logging, name="logging_tool", args=(stop_signal, tank_oil, tank_naoh_etoh, tank_glicerina, tank_biodisel, tank_etoh))
+
 # Ligando threads
 threads.append(input_oil.start())
 threads.append(input_NaOH.start())
 threads.append(input_EtOH.start())
-
-# os.system('cls' if os.name == 'nt' else 'clear')
+threads.append(log_thread.start())
 
 for thread in threads:
     thread.join()

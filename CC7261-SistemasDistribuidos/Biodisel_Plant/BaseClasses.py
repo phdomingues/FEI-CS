@@ -80,7 +80,6 @@ class Tank:
                 self.content.append((entry, product))
 
         # Devolve pro pipe o que nao coube
-        print(self)
         return throwback
 
     def __str__(self):
