@@ -6,24 +6,33 @@ import time
 import os
 
 def logging(stop_signal, *tanks):
-    while not stop_signal:
+    while not stop_signal():
         print("{:^30} | {:^10} | {:^10} | Products".format("Tanque", "Capacidade", "Level"))
-        print("-"*31 + '+' + "-"*12 + '+' + '-'*12 + '+' + '-'*30)
+        print("{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*30))
         for tank in tanks:
             print(tank)
         time.sleep(0.1)
         os.system('cls' if os.name == 'nt' else 'clear')
+    print("Finished executing...")
+    print("Stoping threads...")
 
 threads = []
 
 # Sinais e handlers de parada
-def stop(num, stack):
-    print(f"STOP! {num} - {stack}")
-stop_signal = signal.signal(signal.SIGUSR1, stop)
+stop_lock = threading.Lock()
+stop_variable = False
+def stop_signal():
+    global stop_variable, stop_lock
+    with stop_lock: 
+        return stop_variable
+def stop_handler(num, stack):
+    global stop_variable
+    stop_variable = True
+signal.signal(signal.SIGINT, stop_handler)
 
 # ====== Criando os objetos
 # === Input
-input_oil = Input("Oleo sujo", 1, 2, 0,10, stop_signal)
+input_oil = Input("Oleo sujo", 1, 2, 0, 10, stop_signal)
 input_NaOH = Input("NaOH", 0.25, 0.25, 1, 1, stop_signal)
 input_EtOH = Input("EtOH", 0.125, 0.125, 1, 1, stop_signal)
 # === Tanque

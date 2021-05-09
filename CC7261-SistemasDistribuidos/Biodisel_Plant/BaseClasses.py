@@ -15,7 +15,7 @@ class Input:
         self.output_pipes.append(pipe)
 
     def pump(self):
-        while not self.stop_signal:
+        while not self.stop_signal():
             # Sorteia a quantidade de entrada no range
             amount = random.SystemRandom().uniform(self.input_amount[0], self.input_amount[1])
             # Emite o valor pelos pipes
@@ -61,7 +61,9 @@ class Tank:
         self.output_pipes.append(pipe)
 
     def pump(self):
-        pass
+        while not self.stop_signal():
+            time.sleep(1)
+            pass
 
 
     def start(self):
