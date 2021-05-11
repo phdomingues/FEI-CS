@@ -42,7 +42,7 @@ tank_oil = Tank(math.inf, "Tanque de oleo", stop_signal)
 tank_naoh_etoh = Tank(math.inf, "Tanque de NaOH/EtOH", stop_signal)
 tank_glicerina = Tank(math.inf, "Tanque de Glicerina", stop_signal)
 tank_biodisel = Tank(math.inf, "Tanque de Biodisel", stop_signal)
-tank_etoh = Tank(math.inf, "Tanque de EtOH (Reaproveitado)", stop_signal)
+tank_etoh = Tank(5, "Tanque de EtOH (Reaproveitado)", stop_signal)
 # === Pipes - Meio de comunicação, usado para passar produtos de um lado para o outro
 pipe_oil_tank = Pipe("pipe(Oleo)", tank_oil)
 pipe_naoh_tank = Pipe("pipe(NaOH)", tank_naoh_etoh)
@@ -68,4 +68,5 @@ threads.append(tank_naoh_etoh.start())
 threads.append(log_thread.start())
 
 for thread in threads:
-    thread.join()
+    if thread:
+        thread.join()

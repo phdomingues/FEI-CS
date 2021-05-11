@@ -67,7 +67,11 @@ class Tank:
                 amount = 0.0
                 product = None
                 with self.tanklock:
-                    amount, product = self.content.pop(0)
+                    try:
+                        amount, product = self.content.pop(0)
+                        self.level -= amount
+                    except:
+                        pass
                 # Joga para o pipe
                 throwback = 0
                 for pipe in self.output_pipes:
@@ -76,7 +80,8 @@ class Tank:
                 if throwback > 0:
                     with self.tanklock:
                         self.content.insert(0, (throwback, product))
-            time.sleep(1) # Sleep para nao sobrecarregar processador
+                        self.level += throwback
+            time.sleep(0.1) # Sleep para nao sobrecarregar processador
 
     def start(self):
         thread = threading.Thread(target=self.pump, name="Tank_{}".format(self.name))
