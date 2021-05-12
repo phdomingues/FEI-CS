@@ -81,7 +81,7 @@ class Tank:
                     with self.tanklock:
                         self.content.insert(0, (throwback, product))
                         self.level += throwback
-            time.sleep(0.1) # Sleep para nao sobrecarregar processador
+            time.sleep(5) # Sleep para nao sobrecarregar processador
 
     def start(self):
         thread = threading.Thread(target=self.pump, name="Tank_{}".format(self.name))
@@ -111,3 +111,38 @@ class Tank:
             status_string = "{:<30} | {:>10} | {:>10.2f} | ".format(self.name, self.capacity, self.level)
             status_string += products
         return status_string
+
+
+class Reactor(Tank):
+    def __init__(self, capacity, name, flow, stop_signal):
+        super().__init__(capacity, name, stop_signal)
+        self.flow = flow
+
+
+class Decanter(Tank):
+    def __init__(self, capacity, name, stop_signal):
+        super().__init__(capacity, name, stop_signal)
+
+
+class WashTank(Tank):
+    def __init__(self, capacity, name, loss, stop_signal):
+        super().__init__(capacity, name, stop_signal)
+        self.loss = loss
+
+    def pump(self):
+        while not self.stop_signal():
+            if len(self.output_pipes) > 0:
+                # Puxa o proximo da fila
+                amount = 0.0
+                product = None
+                with self.tanklock:
+                    try:
+                        amount, product = self.content.pop(0)
+                        amount *= (1-self.loss)
+                        self.level -= amount
+                    except:
+                        pass
+                # Joga para o pipe
+                for pipe in self.output_pipes:
+                    throwback += pipe(amount/len(self.output_pipes), product)
+            time.sleep(1) # Sleep para nao sobrecarregar processador
