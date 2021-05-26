@@ -3,6 +3,7 @@ import time
 import threading
 
 TIME_MULTIPLIER = 0.01
+DEBUG = False
 
 class Input:
     def __init__(self, name, min_qtt, max_qtt, min_periodo, max_periodo, stop_signal):
@@ -26,6 +27,8 @@ class Input:
             # espera
             wait_time = random.SystemRandom().uniform(self.periodo[0], self.periodo[1])
             time.sleep(wait_time*TIME_MULTIPLIER)
+            if DEBUG:
+                time.sleep(1*TIME_MULTIPLIER) # Sleep para testar quando precisa visualizar os outputs
 
     def start(self):
         thread = threading.Thread(target=self.pump, name="Input_{}".format(self.name))
@@ -86,7 +89,8 @@ class Tank:
                     with self.tanklock:
                         self.content.insert(0, (throwback, product))
                         self.level += throwback
-            # time.sleep(5*TIME_MULTIPLIER) # Sleep para testar quando precisa visualizar os outputs
+            if DEBUG:
+                time.sleep(1*TIME_MULTIPLIER) # Sleep para testar quando precisa visualizar os outputs
 
     def start(self):
         thread = threading.Thread(target=self.pump, name="Tank_{}".format(self.name))
@@ -169,11 +173,12 @@ class Reactor(Tank):
             # Reduz do tanque a quantidade processada
             with self.tanklock:
                 for product, amount in used.items():
-                    self.products[product] -= amount
                     # Gera o produto resultado
+                    throwback = 0
                     for pipe in self.output_pipes:
                         # Assume-se que o throwback simplesmente vaza do reator
-                        pipe(amount/len(self.output_pipes), product)
+                        throwback += pipe(amount/len(self.output_pipes), product)
+                    self.products[product] -= (amount + throwback) 
             # Adiciona o que saiu ao total acumulado e reduz o nivel do tanque
             self.cumulated_output += total
             self.level -= total
@@ -185,6 +190,8 @@ class Reactor(Tank):
                 rest_time = (5*3/self.cumulated_output)-1 # -1 pois ja descansa 1 segundo sempre
                 time.sleep(rest_time*TIME_MULTIPLIER)
                 self.cumulated_output = 0
+            if DEBUG:
+                time.sleep(1*TIME_MULTIPLIER) # Sleep para testar quando precisa visualizar os outputs
 
     def __call__(self, qtt, product):
         with self.tanklock:
@@ -204,13 +211,43 @@ class Reactor(Tank):
         return status_string
 
 class Decanter(Tank):
-    # A saida do reator é 0.02 Glicerina, 0.09 EtOH e 0.89 Solucao p/ lavagem
+    # A saida do decantador é 0.02 Glicerina, 0.09 EtOH e 0.89 Solucao p/ lavagem
     def __init__(self, capacity, name, stop_signal):
         super().__init__(capacity, name, stop_signal)
+        self.glycerin_pipe = None
+        self.etoh_pipe = None
+        self.wash_pipe = None
         # glycerin_throwback = self.pipe(total*0.02/len(self.output_pipes), 'Glycerin')
         # etoh_throwback = self.pipe(total*0.09/len(self.output_pipes), 'EtOH')
         # wash_throwback = self.pipe(total*0.89/len(self.output_pipes), 'Wash')
+    
+    def connect_glycerin_pipe(self, pipe):
+        self.glycerin_pipe = pipe
+    def connect_etoh_pipe(self, pipe):
+        self.etoh_pipe = pipe
+    def connect_wash_pipe(self, pipe):
+        self.wash_pipe = pipe
 
+    def pump(self):
+        while not self.stop_signal():
+            # remove tudo o que tiver nele
+            total = 0
+            with self.tanklock:
+                total = sum([amount for amount, _ in self.content])
+                self.content.clear()
+                self.level -= total
+            # Joga para o pipe
+            throwback = 0
+            throwback += self.glycerin_pipe(0.02*total, 'Glicerina')
+            throwback += self.etoh_pipe(0.09*total, 'EtOH')
+            throwback += self.wash_pipe(0.89*total, 'Lavagem')
+            # Devolve o que restou pro tanque
+            if throwback > 0:
+                with self.tanklock:
+                    self.content.insert(0, (throwback, 'throwback'))
+                    self.level += throwback
+            if DEBUG:
+                time.sleep(1*TIME_MULTIPLIER) # Sleep para testar quando precisa visualizar os outputs
 
 class WashTank(Tank):
     def __init__(self, capacity, name, loss, stop_signal):
