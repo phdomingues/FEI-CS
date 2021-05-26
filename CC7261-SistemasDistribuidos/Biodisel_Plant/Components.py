@@ -2,6 +2,8 @@ import random
 import time
 import threading
 
+TIME_MULTIPLIER = 0.01
+
 class Input:
     def __init__(self, name, min_qtt, max_qtt, min_periodo, max_periodo, stop_signal):
         self.stop_signal = stop_signal
@@ -22,7 +24,8 @@ class Input:
             for pipe in self.output_pipes:
                 throwback = pipe(amount/len(self.output_pipes), self.name)
             # espera
-            time.sleep(random.SystemRandom().uniform(self.periodo[0], self.periodo[1]))
+            wait_time = random.SystemRandom().uniform(self.periodo[0], self.periodo[1])
+            time.sleep(wait_time*TIME_MULTIPLIER)
 
     def start(self):
         thread = threading.Thread(target=self.pump, name="Input_{}".format(self.name))
@@ -37,6 +40,8 @@ class Pipe:
         self.pipelock = threading.Lock()
 
     def __call__(self, valor, product):
+        if product == None:
+            return valor
         with self.pipelock:
             throwback = 0
             # Verifica se o pipe nao esta cheio
@@ -81,7 +86,7 @@ class Tank:
                     with self.tanklock:
                         self.content.insert(0, (throwback, product))
                         self.level += throwback
-            time.sleep(5) # Sleep para nao sobrecarregar processador
+            # time.sleep(5*TIME_MULTIPLIER) # Sleep para testar quando precisa visualizar os outputs
 
     def start(self):
         thread = threading.Thread(target=self.pump, name="Tank_{}".format(self.name))
@@ -97,7 +102,6 @@ class Tank:
             self.level += entry
             if entry > 0:
                 self.content.append((entry, product))
-
         # Devolve pro pipe o que nao coube
         return throwback
 
@@ -117,11 +121,95 @@ class Reactor(Tank):
     def __init__(self, capacity, name, flow, stop_signal):
         super().__init__(capacity, name, stop_signal)
         self.flow = flow
+        self.products = {
+                        'NaOH': 0,
+                        'Oleo': 0,
+                        'EtOH': 0
+                        }
+        self.cumulated_output = 0
 
+    def pump(self):
+        # O Reator processa 5L/s, sendo: 1 parte NaOH, 1 parte Oleo e 2 partes EtOH
+        # ou seja, para 5L, tem-se no maximo 1.25L de NaOH, 1.25L de Oleo e 2.5L de EtOh
+        while not self.stop_signal():
+            with self.tanklock:
+                # limita a transferencia no maximo por segundo
+                naoh = min(self.flow/4, self.products['NaOH'])
+                oil  = min(self.flow/4, self.products['Oleo'])
+                etoh = min(self.flow/2, self.products['EtOH'])
+                # encontra o gargalo
+                products_limited = {'NaOH': naoh, 'Oleo': oil, 'EtOH': etoh/2}
+                bottleneck = min(products_limited.keys(), key=(lambda product: products_limited[product]))
+                next_iter = products_limited[bottleneck] == 0
+            # Se nao tiver nada para enviar, só espera pela proxima iteração
+            if next_iter: continue
+            # dado o gargalo escolhe as quantidades que serao processadas
+            if bottleneck == 'NaOH':
+                used =  {
+                    'NaOH': naoh,
+                    'Oleo': naoh,
+                    'EtOH': 2*naoh
+                }
+            elif bottleneck == 'Oleo':
+                used =  {
+                    'NaOH': oil,
+                    'Oleo': oil,
+                    'EtOH': 2*oil
+                }
+            elif bottleneck == 'EtOH':
+                used =  {
+                    'NaOH': etoh/2,
+                    'Oleo': etoh/2,
+                    'EtOH': etoh
+                }
+            else:
+                raise Exception("Invalid Product on reactor")
+            # Calcula o total utilizado
+            total = sum(used.values())
+            # Reduz do tanque a quantidade processada
+            with self.tanklock:
+                for product, amount in used.items():
+                    self.products[product] -= amount
+                    # Gera o produto resultado
+                    for pipe in self.output_pipes:
+                        # Assume-se que o throwback simplesmente vaza do reator
+                        pipe(amount/len(self.output_pipes), product)
+            # Adiciona o que saiu ao total acumulado e reduz o nivel do tanque
+            self.cumulated_output += total
+            self.level -= total
+            # Para por 1 seg pois a vazao é considerada em L/s
+            time.sleep(1*TIME_MULTIPLIER)
+            # Descansa se necessario
+            if self.cumulated_output > 3:
+                # Calcula tempo de descanso - 5s para cada 3L de output
+                rest_time = (5*3/self.cumulated_output)-1 # -1 pois ja descansa 1 segundo sempre
+                time.sleep(rest_time*TIME_MULTIPLIER)
+                self.cumulated_output = 0
+
+    def __call__(self, qtt, product):
+        with self.tanklock:
+            # Calcula quanto entra no tanque (entry) e quanto volta pelo pile (throwback)
+            entry = self.capacity-self.level if qtt + self.level > self.capacity else qtt
+            throwback = qtt - entry
+            # Adiciona no tanque
+            self.level += entry
+            self.products[product] += entry
+            return throwback
+
+    def __str__(self):
+        with self.tanklock:
+            products_string = ' | '.join(["{:>6.2f} ({})".format(amount, product_name).ljust(20, ' ') for product_name, amount in self.products.items()])
+            status_string = "{:<30} | {:>10} | {:>10.2f} | ".format(self.name, self.capacity, self.level)
+            status_string += products_string
+        return status_string
 
 class Decanter(Tank):
+    # A saida do reator é 0.02 Glicerina, 0.09 EtOH e 0.89 Solucao p/ lavagem
     def __init__(self, capacity, name, stop_signal):
         super().__init__(capacity, name, stop_signal)
+        # glycerin_throwback = self.pipe(total*0.02/len(self.output_pipes), 'Glycerin')
+        # etoh_throwback = self.pipe(total*0.09/len(self.output_pipes), 'EtOH')
+        # wash_throwback = self.pipe(total*0.89/len(self.output_pipes), 'Wash')
 
 
 class WashTank(Tank):
@@ -143,6 +231,7 @@ class WashTank(Tank):
                     except:
                         pass
                 # Joga para o pipe
+                throwback = 0
                 for pipe in self.output_pipes:
                     throwback += pipe(amount/len(self.output_pipes), product)
-            time.sleep(1) # Sleep para nao sobrecarregar processador
+            # time.sleep(0.1*TIME_MULTIPLIER) # Sleep para testar quando precisa visualizar os outputs
