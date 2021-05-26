@@ -168,26 +168,3 @@ class Dryer(Tank):
         super().__init__(capacity, name, stop_signal)
         self.loss = loss
         self.limit = limit
-
-        def pump(self):
-            while not self.stop_signal():
-                if len(self.output_pipes) > 0:
-                    # Puxa o proximo da fila
-                    amount = 0.0
-                    product = None
-                    with self.tanklock:
-                        try:
-                            amount, product = self.content.pop(0)
-                            self.level -= amount
-                        except:
-                            pass
-                    # Joga para o pipe
-                    throwback = 0
-                    for pipe in self.output_pipes:
-                        throwback += pipe(amount/len(self.output_pipes), product)
-                    # Devolve o que restou pro tanque
-                    if throwback > 0:
-                        with self.tanklock:
-                            self.content.insert(0, (throwback, product))
-                            self.level += throwback
-                time.sleep(0.1) # Sleep para nao sobrecarregar processador
