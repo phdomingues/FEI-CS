@@ -8,14 +8,47 @@ import os
 threads = []
 
 # ====== Ferramenta de logging
-def logging(stop_signal, *tanks):
+def logging(stop_signal, **components):
     while not stop_signal():
         os.system('cls' if os.name == 'nt' else 'clear')
-        print("{:^30} | {:^10} | {:^10} | Products".format("Tanque", "Capacidade", "Level"))
-        print("{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*30))
-        for tank in tanks:
+        # Inputs
+        print("{:^20} | {:^10}".format("Input", "Total injetado no sistema"))
+        print("{}+{}".format("-"*21, "-"*27))
+        for input in components.get('inputs', []):
+            print(input)
+        print("\n\n")
+        
+        # Reactors
+        print("{:^30} | {:^10} | {:^10} | Products".format("Reator", "Capacidade", "Nível"))
+        print("{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*60))
+        for r in components.get('reactors', []):
+            print(r)
+        print("\n\n")
+
+        # Decanters
+        print("{:^30} | {:^10} | {:^10} | Products".format("Decantador", "Capacidade", "Nível"))
+        print("{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*15))
+        for decanter in components.get('decanters', []):
+            print(decanter)
+        print("\n\n")
+
+        # Dryers
+        print("{:^30} | {:^10} | {:^10} | {:^15} | Drying".format("Secador", "Capacidade", "Nível", "Products"))
+        print("{}+{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*17, '-'*20))
+        for dryer in components.get('dryers', []):
+            print(dryer)
+        print("\n\n")
+
+        # Tanks
+        print("{:^30} | {:^10} | {:^10} | Products".format("Tanque", "Capacidade", "Nível"))
+        print("{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*15))
+        for tank in components.get('tanks', []):
             print(tank)
+        print("\n\n")
+
         time.sleep(0.5)
+        
+        
     print("Finished executing...")
     print("Stoping threads...")
 
@@ -51,6 +84,9 @@ decanter = Decanter(10, "Decantador", stop_signal)
 washing_tank_1 = WashTank(math.inf, "Tanque de Lavagem 1", 0.075, stop_signal)
 washing_tank_2 = WashTank(math.inf, "Tanque de Lavagem 2", 0.075, stop_signal)
 washing_tank_3 = WashTank(math.inf, "Tanque de Lavagem 3", 0.075, stop_signal)
+# === Secadores
+dryer_etoh = Dryer(math.inf, "Secador de EtOH", stop_signal, 0.03, 5)
+dryer_biodisel = Dryer(math.inf, "Secador de Lavagem", stop_signal, 0.03, 5)
 # === Pipes - Meio de comunicação, usado para passar produtos de um lado para o outro
 pipe_oil_tank = Pipe("pipe(Oleo)", tank_oil)
 pipe_naoh_tank = Pipe("pipe(NaOH)", tank_naoh_etoh)
@@ -58,11 +94,15 @@ pipe_etoh_tank = Pipe("pipe(EtOH)", tank_naoh_etoh)
 pipe_oil_reactor = Pipe("pipe(Oleo)", reactor)
 pipe_naoh_etoh_reactor = Pipe("Pipe(NaOH/EtOH)", reactor)
 pipe_reactor_decanter = Pipe("Pipe(NaOh/2EtOH/Oleo)", decanter)
-pipe_decanter_etoh = Pipe("Pipe(EtOH) decanter", tank_etoh)
+pipe_decanter_dryer = Pipe("Pipe(EtOH) decanter", dryer_etoh)
 pipe_decanter_glycerin = Pipe("Pipe(Glicerina)", tank_glycerin)
 pipe_decanter_washing_tank_1 = Pipe("Pipe(Lavagem)", washing_tank_1)
-# pipe_washing_tank_1_washing_tank_2 = Pipe("Pipe(Lavagem)", washing_tank_2)
-# pipe_washing_tank_2_washing_tank_3 = Pipe("Pipe(Lavagem)", washing_tank_3)
+pipe_washing_tank_1_washing_tank_2 = Pipe("Pipe(Lavagem)", washing_tank_2)
+pipe_washing_tank_2_washing_tank_3 = Pipe("Pipe(Lavagem)", washing_tank_3)
+pipe_washing_tank_3_dryer_biodisel = Pipe("Pipe(Lavagem)", dryer_biodisel)
+pipe_dryer_etoh_tank = Pipe("Pipe(EtOH)", tank_etoh)
+pipe_etoh_tank_naoh_etoh = Pipe("Pipe(EtOH[R])",tank_naoh_etoh)
+pipe_dryer_biodisel_tank = Pipe("Pipe(Biodisel)", tank_biodisel)
 # ====== Conectando os pipes aos seus inputs
 input_oil.connect_pipe(pipe_oil_tank)
 input_NaOH.connect_pipe(pipe_naoh_tank)
@@ -70,13 +110,28 @@ input_EtOH.connect_pipe(pipe_etoh_tank)
 tank_oil.connect_pipe(pipe_oil_reactor)
 tank_naoh_etoh.connect_pipe(pipe_naoh_etoh_reactor)
 reactor.connect_pipe(pipe_reactor_decanter)
-decanter.connect_etoh_pipe(pipe_decanter_etoh)
+decanter.connect_etoh_pipe(pipe_decanter_dryer)
 decanter.connect_glycerin_pipe(pipe_decanter_glycerin)
 decanter.connect_wash_pipe(pipe_decanter_washing_tank_1)
-# washing_tank_1.connect_pipe(pipe_washing_tank_1_washing_tank_2)
-# washing_tank_2.connect_pipe(pipe_washing_tank_2_washing_tank_3)
+washing_tank_1.connect_pipe(pipe_washing_tank_1_washing_tank_2)
+washing_tank_2.connect_pipe(pipe_washing_tank_2_washing_tank_3)
+washing_tank_3.connect_pipe(pipe_washing_tank_3_dryer_biodisel)
+tank_etoh.connect_pipe(pipe_etoh_tank_naoh_etoh)
+dryer_etoh.connect_pipe(pipe_dryer_etoh_tank)
+dryer_biodisel.connect_pipe(pipe_dryer_biodisel_tank)
 # Logging tool
-log_thread = threading.Thread(target=logging, name="logging_tool", args=(stop_signal, tank_oil, tank_naoh_etoh, tank_glycerin, tank_biodisel, tank_etoh, reactor, decanter, washing_tank_1, washing_tank_2, washing_tank_3))
+log_thread = threading.Thread(
+    target=logging, 
+    name="logging_tool", 
+    args=([stop_signal]),
+    kwargs={
+            'inputs': [input_oil, input_NaOH, input_EtOH],
+            'dryers': [dryer_etoh, dryer_biodisel],
+            'reactors': [reactor],
+            'decanters': [decanter],
+            'tanks': [tank_oil, tank_naoh_etoh, tank_glycerin, tank_etoh, 
+                      washing_tank_1, washing_tank_2, washing_tank_3, tank_biodisel]
+            })
 
 # Ligando threads
 threads.append(input_oil.start())
@@ -88,7 +143,10 @@ threads.append(reactor.start())
 threads.append(decanter.start())
 threads.append(washing_tank_1.start())
 threads.append(washing_tank_2.start())
-#threads.append(washing_tank_3.start())
+threads.append(washing_tank_3.start())
+threads.append(dryer_biodisel.start())
+threads.append(dryer_etoh.start())
+threads.append(tank_etoh.start())
 threads.append(log_thread.start())
 
 for thread in threads:
