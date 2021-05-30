@@ -5,6 +5,8 @@ import math
 import time
 import os
 
+SIMULATION_TIME = 36 # Tempo de simulação em segundos em tempo real (nao considera o TIME_MULTIPLIER)
+
 threads = []
 
 # ====== Ferramenta de logging
@@ -12,39 +14,38 @@ def logging(stop_signal, **components):
     while not stop_signal():
         os.system('cls' if os.name == 'nt' else 'clear')
         # Inputs
-        print("{:^20} | {:^10}".format("Input", "Total injetado no sistema"))
-        print("{}+{}".format("-"*21, "-"*27))
+        print("{:^20} | {:^10} | Cicles".format("Input", "Total injetado no sistema"))
+        print("{}+{}+{}".format("-"*21, '-'*27, "-"*8))
         for input in components.get('inputs', []):
             print(input)
         print("\n\n")
         
         # Reactors
-        print("{:^30} | {:^10} | {:^10} | Products".format("Reator", "Capacidade", "Nível"))
-        print("{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*60))
+        print("{:^30} | {:^10} | {:^10} | {:^6} | Products".format("Reator", "Capacidade", "Nível", "Cicles"))
+        print("{}+{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*8, '-'*60))
         for r in components.get('reactors', []):
             print(r)
         print("\n\n")
 
         # Decanters
-        print("{:^30} | {:^10} | {:^10} | Products".format("Decantador", "Capacidade", "Nível"))
-        print("{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*15))
+        print("{:^30} | {:^10} | {:^10} | {:^6} | Products".format("Decantador", "Capacidade", "Nível", "Cicles"))
+        print("{}+{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*8, '-'*15))
         for decanter in components.get('decanters', []):
             print(decanter)
         print("\n\n")
 
         # Dryers
-        print("{:^30} | {:^10} | {:^10} | {:^15} | Drying".format("Secador", "Capacidade", "Nível", "Products"))
-        print("{}+{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*17, '-'*20))
+        print("{:^30} | {:^10} | {:^10} | {:^6} | {:^17} | Drying".format("Secador", "Capacidade", "Nível", "Cicles", "Products"))
+        print("{}+{}+{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*8, '-'*19, '-'*20))
         for dryer in components.get('dryers', []):
             print(dryer)
         print("\n\n")
 
         # Tanks
-        print("{:^30} | {:^10} | {:^10} | Products".format("Tanque", "Capacidade", "Nível"))
-        print("{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*15))
+        print("{:^30} | {:^10} | {:^10} | {:^6} | Products".format("Tanque", "Capacidade", "Nível", "Cicles"))
+        print("{}+{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*8, '-'*15))
         for tank in components.get('tanks', []):
             print(tank)
-        print("\n\n")
 
         time.sleep(0.5)
         
@@ -149,6 +150,8 @@ threads.append(dryer_etoh.start())
 threads.append(tank_etoh.start())
 threads.append(log_thread.start())
 
+time.sleep(SIMULATION_TIME)
+stop_variable = True
+
 for thread in threads:
-    if thread:
-        thread.join()
+    if thread: thread.join()

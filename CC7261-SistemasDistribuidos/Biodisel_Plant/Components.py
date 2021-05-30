@@ -3,7 +3,7 @@ import time
 import threading
 
 TIME_MULTIPLIER = 1
-DEBUG = True
+DEBUG = False
 
 class Input:
     def __init__(self, name, min_qtt, max_qtt, min_periodo, max_periodo, stop_signal):
@@ -14,6 +14,7 @@ class Input:
         self.output_pipes = []
         self.inputlock = threading.Lock()
         self.total_input = 0
+        self.cicles = 0
 
     def connect_pipe(self, pipe):
         self.output_pipes.append(pipe)
@@ -25,6 +26,7 @@ class Input:
             amount = random.SystemRandom().uniform(self.input_amount[0], self.input_amount[1])
             with self.inputlock:
                 self.total_input += amount
+                self.cicles += 1
             # Emite o valor pelos pipes
             for pipe in self.output_pipes:
                 pipe(amount/len(self.output_pipes), self.name)
@@ -40,7 +42,7 @@ class Input:
     def __str__(self):
         with self.inputlock:
             log = self.name.ljust(20, ' ')
-            return "{:<20} | {:.2f}".format(self.name, self.total_input)
+            return "{:<20} | {:<25.2f} | {:<6}".format(self.name, self.total_input, self.cicles)
 
 class Pipe:
     def __init__(self, name, *output_list):
@@ -70,6 +72,7 @@ class Tank:
         self.content = []
         self.tanklock = threading.Lock()
         self.output_pipes = []
+        self.cicles = 0
         # inicia thread do tanque
 
     def connect_pipe(self, pipe):
@@ -88,6 +91,8 @@ class Tank:
                         self.level -= amount
                     except:
                         pass
+                    if amount > 0:
+                        self.cicles += 1
                 # Joga para o pipe
                 throwback = 0
                 for pipe in self.output_pipes:
@@ -122,7 +127,7 @@ class Tank:
                 try: products[product] += qtt
                 except: products[product] = qtt
             products = ' / '.join(["{:.2f} ({})".format(amount, product_name).ljust(20, ' ') for product_name, amount in products.items()])
-            status_string = "{:<30} | {:>10} | {:>10.2f} | ".format(self.name, self.capacity, self.level)
+            status_string = "{:<30} | {:>10} | {:>10.2f} | {:<6} | ".format(self.name, self.capacity, self.level, self.cicles)
             status_string += products
         return status_string
 
@@ -185,7 +190,8 @@ class Reactor(Tank):
                     for pipe in self.output_pipes:
                         # Assume-se que o throwback simplesmente vaza do reator
                         throwback += pipe(amount/len(self.output_pipes), "Mistura")
-                    self.products[product] -= (amount + throwback) 
+                    self.products[product] -= (amount + throwback)
+                    self.cicles += 1
             # Adiciona o que saiu ao total acumulado e reduz o nivel do tanque
             self.cumulated_output += total
             self.level -= total
@@ -211,7 +217,7 @@ class Reactor(Tank):
     def __str__(self):
         with self.tanklock:
             products_string = ' / '.join(["{:.2f} ({})".format(amount, product_name).ljust(20, ' ') for product_name, amount in self.products.items()])
-            status_string = "{:<30} | {:>10} | {:>10.2f} | ".format(self.name, self.capacity, self.level)
+            status_string = "{:<30} | {:>10} | {:>10.2f} | {:<6} | ".format(self.name, self.capacity, self.level, self.cicles)
             status_string += products_string
         return status_string
 
@@ -239,6 +245,8 @@ class Decanter(Tank):
                 total = sum([amount for amount, _ in self.content])
                 self.content.clear()
                 self.level -= total
+                if total > 0:
+                    self.cicles += 1
             # Joga para o pipe
             throwback = 0
             throwback += self.glycerin_pipe(0.02*total, 'Glicerina')
@@ -269,6 +277,8 @@ class WashTank(Tank):
                         amount *= (1-self.loss)
                     except:
                         pass
+                    if amount > 0:
+                        self.cicles += 1
                 # Joga para o pipe
                 throwback = 0
                 for pipe in self.output_pipes:
@@ -295,14 +305,18 @@ class Dryer(Tank):
                 product = None
                 with self.tanklock:
                     try:
-                        amount, product = self.content.pop(0)
+                        amount, product = self.content[0]
                         self.level -= amount
                     except:
                         pass
                     self.drying_time = self.time_per_liter*amount
                     self.drying_liters = amount
+                    if amount > 0:
+                        self.cicles += 1
                 # Aguarda o tempo de secagem (N [segundos/Litro] * L [Litros])
                 time.sleep(self.time_per_liter*amount*TIME_MULTIPLIER)
+                if amount > 0:
+                    with self.tanklock: self.content.pop(0)
                 # Joga para o pipe
                 throwback = 0
                 for pipe in self.output_pipes:
@@ -318,8 +332,8 @@ class Dryer(Tank):
             for qtt, product in self.content:
                 try: products[product] += qtt
                 except: products[product] = qtt
-            products = "{:<15}".format(' / '.join(["{:.2f} ({})".format(amount, product_name).ljust(15, ' ') for product_name, amount in products.items()]))
+            products = "{:<17}".format(' / '.join(["{:.2f} ({})".format(amount, product_name).ljust(15, ' ') for product_name, amount in products.items()]))
             drying_string = " | {:.2f} L ({:.2f} seconds)".format(self.drying_liters, self.drying_time)
-            status_string = "{:<30} | {:>10} | {:>10.2f} | ".format(self.name, self.capacity, self.level)
+            status_string = "{:<30} | {:>10} | {:>10.2f} | {:<6} | ".format(self.name, self.capacity, self.level, self.cicles)
             status_string += products + drying_string
         return status_string
