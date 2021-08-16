@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>repl.it</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <header>
+      <ul>
+        <li><a class="active" href="index.html">Página Inicial</a></li>
+        <li><a href="#contact">Dúvidas</a></li>
+        <li><a href="#about">Bibliografia</a></li>
+      </ul>
+      <div id="titulo">
+        <img id="img2"src="img_normal.jpg" alt="titulo"  >
+        <h1>QUICK SORT</h1>
+      </div>
+    </header>
+      <div id="logo">
+        <img src="logo_da_fei.png" alt="Logo_da_FEI" width="120" height="60" onclick="Inicio()">
+      </div>
+      
+    <main>
+      <div id='caixa-texto_quick'>
+      <p id='explicacao'>
+        <b> Introdução: </b><br/>
+<br/>
+	O quicksort é um algoritmo de ordenação que possui como base a estratégia de divisão e conquista, dividindo o problema de ordenação em sub-problemas menores e resolvendo-os recursivamente.<br/>
+<br/>
+<b> Funcionamento teórico:</b> <br/>
+<br/>
+	Para iniciarmos o quicksort, devemos definir um valor dentro de nosso vetor que receberá o papel de pivot, ou seja, será um valor base que utilizaremos para dividir nosso problema de ordenação em um ou dois problemas menores.<br/> Uma boa escolha do pivot é essencial, pois pode alterar completamente a velocidade do algoritmo, mas isso será abordado a frente, neste momento, o pivot será sempre o último valor do vetor a ser ordenado.<br/>
+<br/>
+
+<br/>
+  Para o próximo passo, vamos admitir duas váriaveis auxiliares, min, que deverá ser posicionado no inicio do vetor analisado e max, que deverá ser posicionado no final.
+   <br/>  
+   <br/> 
+ 
+<br/>
+
+  Agora, vamos varrer o vetor e fazer com que todos os valores maiores que o pivot fiquem a direita de max e todos os valores menores ou iguais ao pivot, fiquem a esquerda de min. <br/>Quando min e max se cruzarem, trocamos esta posição com o pivot, gerando um novo vetor como o a seguir:<br/>
+<br/>
+ 
+<br/>
+  Por fim, com os dados separados, basta chamarmos o processo do quicksort recursivamente nos vetores gerados a direita e a esquerda do pivot.<br/>
+<br/>
+  
+<br/>
+  Análise em árvore:
+Analisando o algoritmo temos que T(n) é a soma das linhas 3, 4 e 5, ou seja:<br/>
+T(n) = Θ(n) + T(k) + T(n-k)<br/>
+<br/>
+1. Pior caso:
+Quando o pivot não divide o vetor, retirando apenas 1 elemento (o pivot) → k=1, deixando todo o peso da arvore para um dos lados.<br/> Ou seja, T(n) = Θ(n) + T(1) + T(n-1) → T(n) = Θ(n) + T(n-1), como representado na árvore a seguir:
+<br/>
+
+<br/>
+Portanto concluimos que para o pior caso a ordem do quick sort é (n^2+n)/2, ou seja, O(n^2)<br/>
+<br/>
+
+2. Melhor caso:
+Quando o pivot divide igualmente os valores, tendo x valores a sua esquerda e no maximo x+1 valores a sua direita (ou o contrário), por tanto k = n/2.<br/>
+Ou seja, T(n) = Θ(n) + T(n/2) + T(n/2) → T(n) = Θ(n) + 2.T(n/2), como representado na árvore a seguir:<br/>
+<br/>
+
+<br/>
+
+<b>Observações: </b>   <br/>
+Podemos perceber o como a escolha de um bom pivot impacta muito este algoritmo, pois decide se cairemos no melhor ou no pior caso, e portanto se a complexidade será O(n^2) ou O(n.log(n)).<br/>
+
+   
+      
+      <img id="imagem_quick_1" src="img_quick_4.PNG" alt="titulo"  >
+      
+      </p>
+      
+      </div>  
+
+      <div id="titulo_2">
+        <h1> SIMULAÇÃO</h1>
+      </div>
+
+      <div>
+      <iframe id='simulacao' src="https://visualgo.net/pt/sorting">
+      </iframe>
+      </div>
+
+
+
+    </main>
+      
+
+    <footer>
+       
+      
+    </footer>
+
+
+
+
+    <script src="script.js"></script>
+  </body>
+</html>

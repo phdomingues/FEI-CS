@@ -1,0 +1,30 @@
+BubbleSort explicação:
+
+### Explicação introdutória ###
+
+Dado um array de N elementos, BubbleSort vai:
+
+  1. Comparar um par adjacente de elementos (a,b)
+  2. Inverter os elementos desse par caso estejam fora de ordem (no caso de ordem crescente, quando a > b)
+  3. Repetir os Passos 1 e 2 até atingir o final do array.
+    (O ultimo par de elementos é o N - 2 e N - 1 baseado na indexação iniciada em 0)
+
+
+BubbleSort é um algoritmo ineficiente apresentando 0(N^2) de complexidade. Imagine que temos um array de N = 10^5 numeros. Mesmo que você tenha um super computador que pode realizar 10^8 operações por segundo. BubbleSort precisará de 100 segundos para completar a tarefa.
+
+
+BubbleSort é um algortimo de comparação e troca que demanda um tempo que é mensurado por uma constante, chamada  C.
+
+Trata-se de dois loops em cadeia.
+
+O loop externo itera realiza exatamente N iterações.
+Já o numero de itereções do loop interno diminuia gradativamente:
+
+  1. Quando i=0, (N-1) iterações (de comparações e possiveis inversões)
+  2. Quando i=1, (N-2) iterações,
+  3. (...),
+  4. Quando i=(N-2), 1 iteração
+  5. Quando i=(N-1), 0 iterações
+
+O numero total de iterações = (N-1)+(N-2)+...+1+0 = N*(N-1/2) (uma derivação).
+Tempo total = c*N*(N-1)/2 = O(N^2).

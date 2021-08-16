@@ -1,0 +1,56 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>repl.it</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <header>
+      <ul>
+        <li><a class="active" href="index.html">Página Inicial</a></li>
+        
+        <li><a href="#contact">Dúvidas</a></li>
+        <li><a href="#about">Bibliografia</a></li>
+      </ul>
+      <div id="titulo">
+        <img id="img2"src="img_normal.jpg" alt="titulo"  >
+        <h1>Escolha o que você deseja aprender:</h1>
+      </div>
+    </header>
+      <div id="logo">
+        <img src="logo_da_fei.png" alt="Logo_da_FEI" width="120" height="60" onclick="Inicio()">
+      </div>
+      
+    <main></main>
+      
+      <div id="principal1" onmouseover="muda_1()" onmouseout="volta_1()" onclick="Buble()">
+        <h1>BUBLE SORT</h1>
+      </div>
+
+      <div id="principal2" onmouseover="muda_2()" onmouseout="volta_2()" onclick="Merge()" >
+        <h1>MERGE SORT</h1>
+      </div>
+
+      <div id="principal3" onmouseover="muda_3()" onmouseout="volta_3()" onclick="Insertion()" >
+        <h1>INSERTION SORT</h1>
+      </div>
+
+      <div id="principal4" onmouseover="muda_4()" onmouseout="volta_4()" onclick="Quick()" >
+        <h1>QUICK SORT</h1>
+      </div>
+
+      
+      
+    <footer>
+       
+      
+    </footer>
+
+
+
+
+    <script src="script.js"></script>
+  </body>
+</html>
