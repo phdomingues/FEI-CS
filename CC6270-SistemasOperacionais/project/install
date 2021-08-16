@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Configuration parameters
+THIS=$(readlink -f .)
+ROOT="$HOME"/FMS
+SUBFOLDERS=( Agenda Pictures Backups )
+COMPILER=gcc
+ODIR=obj
+SRC=src
+
+# create directories
+echo ">>>" generating directory tree
+for folder in ${SUBFOLDERS[@]}
+do
+  echo '>'$ROOT/$folder
+  mkdir -p $ROOT/$folder
+done
+
+echo $'\n'---------------------------------------------$'\n'
+
+# Check if directory exists
+echo ">>>" Verifying: $THIS/$ODIR
+if [ -d $THIS/$ODIR ]
+then
+    echo "obj directory - OK"
+else
+    echo "obj directory - Fail... running mkdir."
+    mkdir -p $THIS/$ODIR
+fi
+
+echo ">>>" Compiling "source" code at $SRC $'\n'
+find $SRC -type f -name "*.c" | while read code; do
+  echo ">" Compiling: $code
+  $($COMPILER -pthread $code -o $ODIR/teste -Wno-implicit -Wno-format)
+done
+
+echo $'\n'$'\n'"<<<<<" installation finished ">>>>>"$'\n'$'\n'

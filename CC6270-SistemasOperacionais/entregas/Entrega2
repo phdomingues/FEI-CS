@@ -1,0 +1,24 @@
+Processo: 
+Um processo pode ser qualquer programa em execução. Uma entidade ativa que carrega atributos como memoria, estado do hardware e um id chamado de PID.
+Processos possuem estados, os quais são:
+
+*NEW- Está em estado de criação;
+*READY- Está aguardando para ser direcionado a uma unidade de processamento;
+*RUNNING- Suas instruções estão sendo executadas;
+*WAITING- Em aguardo por um evento, como por exemplo uma entrada/saída de dados;
+*TERMINATED- Sua execução foi finalizada;
+
+Thread:
+threads são fluxos que ocorrem em paralelo dentro de um mesmo processo, cada uma possuindo seu próprio pc (Program Counter) para gerenciar quais instruções devem ser executadas a seguir. Assim como memoria para armazenamento de variáveis e uma pilha de execução para o histórico de execução.
+
+Escalonamento de processo:
+Escalonamento de processos é a um susbsistema do sistema operacional, o qual decida qual processo poderá fazer o uso da cpu em um dado momento. Os algoritmos aplicados a este são responsáveis por todo o gerenciamento desta logistica.
+
+Alguns exemplos de algoritmos de gerenciamento de processos são: Algoritmo do barbeiro e Jantar dos filósofos.
+
+
+
+No nosso projeto aplicaremos estes conhecimentos da seguinte forma:
+1. Todo código que estiver rodando será um processo, independente de sua funcionalidade.
+2. Threads serão utilizadas para gerenciar tarefas em plano de fundo enquanto o usuário permanece podendo utilizar a interface.
+3. Não faremos uso direto de Escalonamento de processo, uma vez que o sistema operacional cumprirá todas as necessidades sob este aspecto.

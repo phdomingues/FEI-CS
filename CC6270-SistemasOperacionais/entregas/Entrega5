@@ -1,0 +1,32 @@
+Sistema de arquivos 
+Aplicação de sistema de arquivos
+Perguntas
+
+1) Como listar os sistemas de arquivos montados?
+mount -t ext4
+- ext4 é um sistema de arquivos utilizado pelo Linux a partir de 2008
+
+
+2) Quais são os passos para montar um sistema de arquivos no linux? Faça uso de um ou mais sistemas de arquivos à sua escolha. Sugere-se que o sistema de arquivo escolhido suporte o projeto que desenvolve.
+1º Definir o diretório onde será o ponto de montagem
+sudo mount /dev/sda7 /mnt/media
+- O linux já declara o tipo de sistema de arquivos automatico.
+2º Quando o sistema de arquivos não é reconhecido, é adicionar o parâmetro -t no mount.
+- Tem várias opções na hora da montagem de arquivos, mas não vou aprofundar mto.
+Não utilizaremos o comando mount, para a montagem de um sistema de arquivos, pois não achamos necessário montar uma partição, utilizaremos o UFS do linux.
+OBS: A gente tem que discutar sobre o sistema de arquivos ext4 e ufs ainda.
+
+3) Como desmontar um sistema de arquivo?
+1º Abra o shell
+2º Vá no diretório onde é o ponto de montagem 
+3º Digite o comando abaixo
+umount /dev/sda4
+
+
+4) Uma vez que o mount foram feitos, ele é perdido a cada reinicialização do equipamento?
+Não, pois iremos utilizar o agendador de tarefas.
+
+5) Como tornar permanente as montagens de device que vcs criam?
+ crontab - agendador de tarefas
+A gente utiliza o agendador de tarefas, através do comando crontab no terminal. Para montar os sistemas de arquivos no dia e hora, especificado, tornando persistente a montagem.
+

@@ -1,0 +1,13 @@
+Título: File Management System
+
+Equipe:
+- Matheus Elias
+- Ibrahim Orra
+- Pedro Domingues
+- Renan Martins
+
+Tema: Sistema de gerenciamento de dados para auxilio em sistema hospitalar
+
+Sistema Operacional Ubuntu : Paralelo, monousuario e multiusuario, multitarefa, multiprocessado e funcional via lotes(batch)
+
+Hardware : Desktop AMD Ryzen 5 3400g, Colorful B550m Gaming Pro, 16 gb RAM DDR4, 1Tb Hard Disk, 500wats de potência

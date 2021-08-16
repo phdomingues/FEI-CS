@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Configuration parameters
+THIS=$(readlink -f .)
+ROOT="$HOME"/FMS
+SUBFOLDERS=( Agenda Pictures Backups )
+COMPILER=gcc
+ODIR=obj
+SRC=src
+
+# create directories
+echo ">>>" generating directory tree $'\n'
+for folder in ${SUBFOLDERS[@]}
+do
+  echo '>'$ROOT/$folder
+  mkdir -p $ROOT/$folder
+done
+
+echo $'\n'---------------------------------------------$'\n'
+
+# Check if directory exists
+echo ">>>" Verifying: $THIS/$ODIR $'\n'
+if [ -d $THIS/$ODIR ]
+then
+    echo "obj directory - OK" $'\n'
+else
+    echo "obj directory - Fail... running mkdir." $'\n'
+    mkdir -p $THIS/$ODIR
+fi
+
+echo ">>>" Compiling "source" code at $SRC $'\n'
+find $SRC -type f -name "*.c" | while read code; do
+  echo ">" Compiling: $code $'\n'
+  fname=$(echo $code | sed 's/src\///')
+  $($COMPILER -pthread $code -o $ODIR/${fname::-2}.out -Wno-implicit -Wno-format)
+  echo $'\n'
+done
+
+# just copy the python code since it doesn't need to compile
+echo ">>>" Moving python to $ODIR directory
+cp $SRC/show_ag.py $ODIR/show_ag.py
+
+# just copy the shell script for the menu to the obj directory
+echo ">>>" Movint menu script to $ODIR directory
+cp $SRC/menu $ODIR/menu
+
+# move all compiled folder to the project path
+echo ">>>" Copying objects folder to user folder at: $ROOT/$ODIR
+cp -r $ODIR $ROOT
+
+echo $'\n'"<<<<<" installation finished ">>>>>"$'\n'$'\n'

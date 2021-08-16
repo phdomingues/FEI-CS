@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Função que executa a agenda
+run_agenda()
+{
+  FMS/obj/agenda.out
+}
+
+# Função que realiza o backup
+do_backup()
+{
+  # Raiz do projeto
+  BKP_DIR="$HOME"/FMS/Backups
+  # pedindo variaveis para o usuario
+  read -p 'Caminho do diretório que gostaria de realizar backup: ' DIR
+  read -p 'Nome do seu backup: ' NAME
+  # criando um backup
+  tar -czpf ${BKP_DIR}/${NAME} ${DIR}
+  # alertando o usuario que o backup foi criado
+  echo "Seu backup foi criado em $BKP_DIR"
+}
+
+####### MENU ##########
+echo Bem vindo! O que gostaria de fazer? $'\n'
+echo "(1)" Acessar agenda
+echo "(2)" Criar backup $'\n'
+# Lendo a opção
+read -p 'Opção: ' option
+# Escolhendo a função correspondente
+case $option in
+  # Se a opção for 1
+  1) run_agenda ;;
+  # Se a opção for 2
+  2) do_backup ;;
+  # Se qualquer outra coisa for digitada
+  *) echo "opção invalida";;
+esac
