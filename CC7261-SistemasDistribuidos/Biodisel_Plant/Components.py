@@ -2,7 +2,7 @@ import random
 import time
 import threading
 
-TIME_MULTIPLIER = 1
+TIME_MULTIPLIER = 0.1
 DEBUG = False
 
 class Input:

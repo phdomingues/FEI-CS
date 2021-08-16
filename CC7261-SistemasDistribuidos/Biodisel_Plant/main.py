@@ -5,7 +5,7 @@ import math
 import time
 import os
 
-SIMULATION_TIME = 36 # Tempo de simulação em segundos em tempo real (nao considera o TIME_MULTIPLIER)
+SIMULATION_TIME = 360 # Tempo de simulação em segundos em tempo real (nao considera o TIME_MULTIPLIER)
 
 threads = []
 
@@ -19,7 +19,7 @@ def logging(stop_signal, **components):
         for input in components.get('inputs', []):
             print(input)
         print("\n\n")
-        
+
         # Reactors
         print("{:^30} | {:^10} | {:^10} | {:^6} | Products".format("Reator", "Capacidade", "Nível", "Cicles"))
         print("{}+{}+{}+{}+{}".format("-"*31, "-"*12, '-'*12, '-'*8, '-'*60))
@@ -150,8 +150,8 @@ threads.append(dryer_etoh.start())
 threads.append(tank_etoh.start())
 threads.append(log_thread.start())
 
-time.sleep(SIMULATION_TIME)
-stop_variable = True
+# time.sleep(SIMULATION_TIME)
+# stop_variable = True
 
 for thread in threads:
     if thread: thread.join()
