@@ -1,0 +1,10 @@
+O arquivo anexo contém 20 chaves de 2500 bytes (20000 bits) para testes de aleatoriedade.
+
+No relatório, informar quais destas chaves podem ser consideradas aleatórias, considerando a FIPS 140-1.
+
+Caso a mesma não possa ser considerada aleatória, informar qual(quais) os testes que ela não atende (POR ISSO, SEMPRE EXECUTAR OS QUATRO TESTES E INFORMAR AQUELES EM QUE A CHAVE PASSOU E AQUELES EM QUE NÃO PASSOU.
+
+O relatório deve apresentar, para cada uma das chaves:
+1) quantidade de monobits
+2) valor calculado no pokerTest e quantidade de cada nible
+3) quantidade de cada sequencia do Run test (tanto para zeros como para uns)
